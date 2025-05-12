@@ -1,0 +1,55 @@
+---
+gateway:
+  namespace: null
+  name: null
+  url: null
+qdrant:
+  apiKey: false
+  readOnlyApiKey: false
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  persistence:
+    accessModes: ["ReadWriteOnce"]
+    size: 10Gi
+    annotations: {}
+    storageClassName: ebs-gp3
+  config:
+    cluster:
+      enabled: true
+      p2p:
+        port: 6335
+        enable_tls: false
+      consensus:
+        tick_period_ms: 100
+    log_level: INFO
+  service:
+    type: ClusterIP
+    additionalLabels:
+      app: qdrant
+      istio.io/use-waypoint: waypoint
+    annotations: {}
+    loadBalancerIP: ""
+    ports:
+      - name: http
+        port: 6333
+        targetPort: 6333
+        protocol: TCP
+        checksEnabled: true
+        # appProtocol: http
+      - name: grpc
+        port: 6334
+        targetPort: 6334
+        protocol: TCP
+        checksEnabled: false
+        # appProtocol: http2
+      - name: p2p
+        port: 6335
+        targetPort: 6335
+        protocol: TCP
+        checksEnabled: false

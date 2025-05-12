@@ -1,0 +1,21 @@
+{{- range $index, $port := .Values.qdrant.service.ports }}
+  {{- if (eq $port.name "grpc") }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GRPCRoute
+metadata:
+  name: {{ $.Release.Name }}-{{ $port.name }}-route
+  namespace: {{ $.Release.Namespace }}
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: {{ $.Values.gateway.name }}
+      namespace: {{ $.Values.gateway.namespace }}
+  hostnames:
+    - "{{ $.Values.gateway.url }}"
+  rules:
+    - backendRefs:
+        - name: {{ $.Release.Name }}-qdrant
+          port: {{ $port.port }}
+  {{- end }}
+{{- end }}

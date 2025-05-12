@@ -1,0 +1,23 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{.Values.gateway.namespace}} 
+spec:
+  action: ALLOW
+  targetRefs:
+  - kind: Gateway
+    group: gateway.networking.k8s.io
+    name: {{.Values.gateway.name}}
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["*"]
+    to:
+    - operation:
+        hosts: 
+        - {{ .Release.Name }}-qdrant.{{ .Release.Namespace }}.svc.cluster.local
+        - {{ .Values.gateway.url }}
+    when:
+     - key: request.auth.claims[roles]
+       values: ["db"]
